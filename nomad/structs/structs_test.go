@@ -864,7 +864,7 @@ func TestInvalidServiceCheck(t *testing.T) {
 		Name:      "service.name",
 		PortLabel: "bar",
 	}
-	if err := s.Validate(); err == nil {
+	if err := s.ValidateName(s.Name); err == nil {
 		t.Fatalf("Service should be invalid (contains a dot): %v", err)
 	}
 
@@ -877,10 +877,18 @@ func TestInvalidServiceCheck(t *testing.T) {
 	}
 
 	s = Service{
+		Name:      "my-service-${NOMAD_META_FOO}",
+		PortLabel: "bar",
+	}
+	if err := s.Validate(); err != nil {
+		t.Fatalf("Service should be valid: %v", err)
+	}
+
+	s = Service{
 		Name:      "abcdef0123456789-abcdef0123456789-abcdef0123456789-abcdef0123456",
 		PortLabel: "bar",
 	}
-	if err := s.Validate(); err == nil {
+	if err := s.ValidateName(s.Name); err == nil {
 		t.Fatalf("Service should be invalid (too long): %v", err)
 	}
 
